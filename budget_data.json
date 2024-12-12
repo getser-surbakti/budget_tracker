@@ -1,4 +1,9 @@
 {
     "budget": 1000,
-    "expenses": []
+    "expenses": [
+        {
+            "description": "buying laptop",
+            "amount": 122.0
+        }
+    ]
 }

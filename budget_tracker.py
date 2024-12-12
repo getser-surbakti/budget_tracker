@@ -39,12 +39,17 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_expense():
-    description = request.form['description']
-    amount = float(request.form['amount'])
-    initial_budget, expenses = load_budget_data('budget_data.json')
-    expenses.append({"description": description, "amount": amount})
-    save_budget_data('budget_data.json', initial_budget, expenses)
-    return redirect(url_for('index'))
+    try:
+        description = request.form['description']
+        amount = float(request.form['amount'])
+        initial_budget, expenses = load_budget_data('budget_data.json')
+        expenses.append({"description": description, "amount": amount})
+        save_budget_data('budget_data.json', initial_budget, expenses)
+        return redirect(url_for('index'))
+    except Exception as e:
+        print(e)
+        return "Internal Server Error", 500
+
 
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
