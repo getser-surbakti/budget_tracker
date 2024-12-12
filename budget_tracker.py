@@ -9,16 +9,20 @@ app.jinja_env.globals.update(enumerate=enumerate)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+# Define absolute path to JSON file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(BASE_DIR, 'budget_data.json')
+
 def load_budget_data(filepath):
     if not os.path.exists(filepath):
-        print(f"File {filepath} not found. Creating a new budget file.")
+        logging.debug(f"File {filepath} not found. Creating a new budget file.")
         return 0, []
 
     try:
         with open(filepath, 'r') as file:
             data = json.load(file)
     except json.JSONDecodeError:
-        print(f"Error reading {filepath}. Creating a new budget file.")
+        logging.debug(f"Error reading {filepath}. Creating a new budget file.")
         return 0, []
 
     initial_budget = data.get("budget", 0)
@@ -32,11 +36,11 @@ def save_budget_data(filepath, budget, expenses):
     }
     with open(filepath, 'w') as file:
         json.dump(data, file, indent=4)
-    print("Budget data saved.")
+    logging.debug("Budget data saved.")
 
 @app.route('/')
 def index():
-    initial_budget, expenses = load_budget_data('budget_data.json')
+    initial_budget, expenses = load_budget_data(JSON_FILE)
     total_spent = sum(expense['amount'] for expense in expenses)
     remaining_budget = initial_budget - total_spent
     return render_template('index.html', budget=initial_budget, expenses=expenses, total_spent=total_spent, remaining_budget=remaining_budget)
@@ -48,11 +52,11 @@ def add_expense():
         amount = float(request.form['amount'])
         logging.debug(f"Received description: {description}, amount: {amount}")
 
-        initial_budget, expenses = load_budget_data('budget_data.json')
+        initial_budget, expenses = load_budget_data(JSON_FILE)
         expenses.append({"description": description, "amount": amount})
         logging.debug(f"Updated expenses: {expenses}")
 
-        save_budget_data('budget_data.json', initial_budget, expenses)
+        save_budget_data(JSON_FILE, initial_budget, expenses)
         logging.debug("Budget data saved successfully")
         return redirect(url_for('index'))
     except Exception as e:
@@ -62,10 +66,11 @@ def add_expense():
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
     try:
-        initial_budget, expenses = load_budget_data('budget_data.json')
+        initial_budget, expenses = load_budget_data(JSON_FILE)
         if 0 <= index < len(expenses):
             expenses.pop(index)
-            save_budget_data('budget_data.json', initial_budget, expenses)
+            save_budget_data(JSON_FILE, initial_budget, expenses)
+        logging.debug("Expense deleted successfully")
         return redirect(url_for('index'))
     except Exception as e:
         logging.error("Error deleting expense: %s", e)
@@ -76,10 +81,11 @@ def edit_expense(index):
     try:
         description = request.form['description']
         amount = float(request.form['amount'])
-        initial_budget, expenses = load_budget_data('budget_data.json')
+        initial_budget, expenses = load_budget_data(JSON_FILE)
         if 0 <= index < len(expenses):
             expenses[index] = {"description": description, "amount": amount}
-            save_budget_data('budget_data.json', initial_budget, expenses)
+            save_budget_data(JSON_FILE, initial_budget, expenses)
+        logging.debug("Expense edited successfully")
         return redirect(url_for('index'))
     except Exception as e:
         logging.error("Error editing expense: %s", e)
