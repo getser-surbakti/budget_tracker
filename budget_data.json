@@ -1,4 +1,13 @@
 {
     "budget": 1000,
-    "expenses": []
+    "expenses": [
+        {
+            "description": "w",
+            "amount": 22.0
+        },
+        {
+            "description": "w",
+            "amount": 2.0
+        }
+    ]
 }

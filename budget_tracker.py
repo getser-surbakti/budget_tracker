@@ -28,6 +28,9 @@ def load_budget_data(filepath):
     except PermissionError:
         logging.error(f"Permission denied when trying to read {filepath}.")
         return 0, []
+    except Exception as e:
+        logging.error(f"Unexpected error loading budget data: {e}")
+        return 0, []
 
 def save_budget_data(filepath, budget, expenses):
     data = {"budget": budget, "expenses": expenses}
@@ -37,6 +40,8 @@ def save_budget_data(filepath, budget, expenses):
         logging.debug("Budget data saved.")
     except PermissionError:
         logging.error(f"Permission denied when trying to write to {filepath}.")
+    except Exception as e:
+        logging.error(f"Unexpected error saving budget data: {e}")
 
 @app.route('/')
 def index():
@@ -63,7 +68,7 @@ def add_expense():
         logging.debug("Budget data saved successfully")
         return redirect(url_for('index'))
     except Exception as e:
-        logging.error("Error adding expense: %s", e)
+        logging.error(f"Error adding expense: {e}")
         return "Internal Server Error", 500
 
 @app.route('/delete/<int:index>', methods=['POST'])
@@ -79,7 +84,7 @@ def delete_expense(index):
         
         return redirect(url_for('index'))
     except Exception as e:
-        logging.error("Error deleting expense: %s", e)
+        logging.error(f"Error deleting expense: {e}")
         return "Internal Server Error", 500
 
 @app.route('/edit/<int:index>', methods=['POST'])
@@ -99,7 +104,7 @@ def edit_expense(index):
 
         return redirect(url_for('index'))
     except Exception as e:
-        logging.error("Error editing expense: %s", e)
+        logging.error(f"Error editing expense: {e}")
         return "Internal Server Error", 500
 
 if __name__ == '__main__':
