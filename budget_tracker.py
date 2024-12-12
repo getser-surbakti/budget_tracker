@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 import os
 import json
+import logging
 
 app = Flask(__name__)
 app.jinja_env.globals.update(enumerate=enumerate)
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 def load_budget_data(filepath):
     if not os.path.exists(filepath):
@@ -47,9 +51,8 @@ def add_expense():
         save_budget_data('budget_data.json', initial_budget, expenses)
         return redirect(url_for('index'))
     except Exception as e:
-        print(e)
+        logging.error("Error adding expense: %s", e)
         return "Internal Server Error", 500
-
 
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
@@ -61,13 +64,17 @@ def delete_expense(index):
 
 @app.route('/edit/<int:index>', methods=['POST'])
 def edit_expense(index):
-    description = request.form['description']
-    amount = float(request.form['amount'])
-    initial_budget, expenses = load_budget_data('budget_data.json')
-    if 0 <= index < len(expenses):
-        expenses[index] = {"description": description, "amount": amount}
-        save_budget_data('budget_data.json', initial_budget, expenses)
-    return redirect(url_for('index'))
+    try:
+        description = request.form['description']
+        amount = float(request.form['amount'])
+        initial_budget, expenses = load_budget_data('budget_data.json')
+        if 0 <= index < len(expenses):
+            expenses[index] = {"description": description, "amount": amount}
+            save_budget_data('budget_data.json', initial_budget, expenses)
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error("Error editing expense: %s", e)
+        return "Internal Server Error", 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host = '0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
