@@ -14,30 +14,29 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 JSON_FILE = os.path.join(BASE_DIR, 'budget_data.json')
 
 def load_budget_data(filepath):
-    if not os.path.exists(filepath):
-        logging.debug(f"File {filepath} not found. Creating a new budget file.")
-        return 0, []
-
     try:
+        if not os.path.exists(filepath):
+            logging.debug(f"File {filepath} not found. Creating a new budget file.")
+            return 0, []
         with open(filepath, 'r') as file:
             data = json.load(file)
             logging.debug(f"Loaded budget data: {data}")
+            return data.get("budget", 0), data.get("expenses", [])
     except json.JSONDecodeError:
         logging.debug(f"Error reading {filepath}. Creating a new budget file.")
         return 0, []
-
-    initial_budget = data.get("budget", 0)
-    expenses = data.get("expenses", [])
-    return initial_budget, expenses
+    except PermissionError:
+        logging.error(f"Permission denied when trying to read {filepath}.")
+        return 0, []
 
 def save_budget_data(filepath, budget, expenses):
-    data = {
-        "budget": budget,
-        "expenses": expenses
-    }
-    with open(filepath, 'w') as file:
-        json.dump(data, file, indent=4)
-    logging.debug("Budget data saved.")
+    data = {"budget": budget, "expenses": expenses}
+    try:
+        with open(filepath, 'w') as file:
+            json.dump(data, file, indent=4)
+        logging.debug("Budget data saved.")
+    except PermissionError:
+        logging.error(f"Permission denied when trying to write to {filepath}.")
 
 @app.route('/')
 def index():
@@ -55,8 +54,10 @@ def add_expense():
         logging.debug(f"Received description: {description}, amount: {amount}")
 
         initial_budget, expenses = load_budget_data(JSON_FILE)
+        logging.debug(f"Before adding: Initial Budget: {initial_budget}, Expenses: {expenses}")
+        
         expenses.append({"description": description, "amount": amount})
-        logging.debug(f"Updated expenses: {expenses}")
+        logging.debug(f"Updated expenses after adding: {expenses}")
 
         save_budget_data(JSON_FILE, initial_budget, expenses)
         logging.debug("Budget data saved successfully")
@@ -69,10 +70,13 @@ def add_expense():
 def delete_expense(index):
     try:
         initial_budget, expenses = load_budget_data(JSON_FILE)
+        logging.debug(f"Before deleting: Initial Budget: {initial_budget}, Expenses: {expenses}")
+
         if 0 <= index < len(expenses):
             expenses.pop(index)
             save_budget_data(JSON_FILE, initial_budget, expenses)
-        logging.debug("Expense deleted successfully")
+            logging.debug(f"Updated expenses after deleting: {expenses}")
+        
         return redirect(url_for('index'))
     except Exception as e:
         logging.error("Error deleting expense: %s", e)
@@ -86,10 +90,13 @@ def edit_expense(index):
         logging.debug(f"Received new description: {description}, amount: {amount}")
 
         initial_budget, expenses = load_budget_data(JSON_FILE)
+        logging.debug(f"Before editing: Initial Budget: {initial_budget}, Expenses: {expenses}")
+
         if 0 <= index < len(expenses):
             expenses[index] = {"description": description, "amount": amount}
             save_budget_data(JSON_FILE, initial_budget, expenses)
-        logging.debug("Expense edited successfully")
+            logging.debug(f"Updated expenses after editing: {expenses}")
+
         return redirect(url_for('index'))
     except Exception as e:
         logging.error("Error editing expense: %s", e)
