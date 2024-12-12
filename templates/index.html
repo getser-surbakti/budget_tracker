@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Budget Tracker App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <h1 class="my-4 text-center">Budget Tracker App</h1>
+        <marquee direction="left">Time to track your budget!!!</marquee>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Total Budget: Rp{{ budget }}</h2>
+                <h3 class="card-subtitle mb-2 text-muted">Total Spent: Rp{{ total_spent }}</h3>
+                <h3 class="card-subtitle mb-2 text-success">Remaining Budget: Rp{{ remaining_budget }}</h3>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Add Expense</h3>
+                <form action="/add" method="post" class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="description" class="sr-only">Description</label>
+                        <input type="text" class="form-control" name="description" placeholder="Description" required>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="amount" class="sr-only">Amount</label>
+                        <input type="number" step="0.01" class="form-control" name="amount" placeholder="Amount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Expenses</h3>
+                <ul class="list-group">
+                    {% for i, expense in enumerate(expenses) %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ expense.description }}: ${{ expense.amount }}
+                        <div>
+                            <form action="/delete/{{ i }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                            <form action="/edit/{{ i }}" method="post" class="form-inline" style="display:inline;">
+                                <input type="text" class="form-control form-control-sm mx-sm-2" name="description" placeholder="New Description" required>
+                                <input type="number" step="0.01" class="form-control form-control-sm mx-sm-2" name="amount" placeholder="New Amount" required>
+                                <button type="submit" class="btn btn-secondary btn-sm">Edit</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
