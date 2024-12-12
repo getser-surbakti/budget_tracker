@@ -21,6 +21,7 @@ def load_budget_data(filepath):
     try:
         with open(filepath, 'r') as file:
             data = json.load(file)
+            logging.debug(f"Loaded budget data: {data}")
     except json.JSONDecodeError:
         logging.debug(f"Error reading {filepath}. Creating a new budget file.")
         return 0, []
@@ -43,6 +44,7 @@ def index():
     initial_budget, expenses = load_budget_data(JSON_FILE)
     total_spent = sum(expense['amount'] for expense in expenses)
     remaining_budget = initial_budget - total_spent
+    logging.debug(f"Initial Budget: {initial_budget}, Total Spent: {total_spent}, Remaining Budget: {remaining_budget}")
     return render_template('index.html', budget=initial_budget, expenses=expenses, total_spent=total_spent, remaining_budget=remaining_budget)
 
 @app.route('/add', methods=['POST'])
@@ -81,6 +83,8 @@ def edit_expense(index):
     try:
         description = request.form['description']
         amount = float(request.form['amount'])
+        logging.debug(f"Received new description: {description}, amount: {amount}")
+
         initial_budget, expenses = load_budget_data(JSON_FILE)
         if 0 <= index < len(expenses):
             expenses[index] = {"description": description, "amount": amount}
