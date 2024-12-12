@@ -46,9 +46,14 @@ def add_expense():
     try:
         description = request.form['description']
         amount = float(request.form['amount'])
+        logging.debug(f"Received description: {description}, amount: {amount}")
+
         initial_budget, expenses = load_budget_data('budget_data.json')
         expenses.append({"description": description, "amount": amount})
+        logging.debug(f"Updated expenses: {expenses}")
+
         save_budget_data('budget_data.json', initial_budget, expenses)
+        logging.debug("Budget data saved successfully")
         return redirect(url_for('index'))
     except Exception as e:
         logging.error("Error adding expense: %s", e)
@@ -56,11 +61,15 @@ def add_expense():
 
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
-    initial_budget, expenses = load_budget_data('budget_data.json')
-    if 0 <= index < len(expenses):
-        expenses.pop(index)
-        save_budget_data('budget_data.json', initial_budget, expenses)
-    return redirect(url_for('index'))
+    try:
+        initial_budget, expenses = load_budget_data('budget_data.json')
+        if 0 <= index < len(expenses):
+            expenses.pop(index)
+            save_budget_data('budget_data.json', initial_budget, expenses)
+        return redirect(url_for('index'))
+    except Exception as e:
+        logging.error("Error deleting expense: %s", e)
+        return "Internal Server Error", 500
 
 @app.route('/edit/<int:index>', methods=['POST'])
 def edit_expense(index):
