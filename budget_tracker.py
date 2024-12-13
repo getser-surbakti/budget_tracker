@@ -69,7 +69,7 @@ def add_expense():
         return redirect(url_for('index'))
     except Exception as e:
         logging.error(f"Error adding expense: {e}")
-        return "Internal Server Error", 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
@@ -81,11 +81,11 @@ def delete_expense(index):
             expenses.pop(index)
             save_budget_data(JSON_FILE, initial_budget, expenses)
             logging.debug(f"Updated expenses after deleting: {expenses}")
-        
+
         return redirect(url_for('index'))
     except Exception as e:
         logging.error(f"Error deleting expense: {e}")
-        return "Internal Server Error", 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/edit/<int:index>', methods=['POST'])
 def edit_expense(index):
@@ -105,7 +105,7 @@ def edit_expense(index):
         return redirect(url_for('index'))
     except Exception as e:
         logging.error(f"Error editing expense: {e}")
-        return "Internal Server Error", 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
