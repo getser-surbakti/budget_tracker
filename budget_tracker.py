@@ -54,13 +54,14 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_expense():
     try:
+        logging.debug(f"Request to add expense received.")
         description = request.form['description']
         amount = float(request.form['amount'])
         logging.debug(f"Received description: {description}, amount: {amount}")
 
         initial_budget, expenses = load_budget_data(JSON_FILE)
         logging.debug(f"Before adding: Initial Budget: {initial_budget}, Expenses: {expenses}")
-        
+
         expenses.append({"description": description, "amount": amount})
         logging.debug(f"Updated expenses after adding: {expenses}")
 
@@ -74,6 +75,7 @@ def add_expense():
 @app.route('/delete/<int:index>', methods=['POST'])
 def delete_expense(index):
     try:
+        logging.debug(f"Request to delete expense at index {index} received.")
         initial_budget, expenses = load_budget_data(JSON_FILE)
         logging.debug(f"Before deleting: Initial Budget: {initial_budget}, Expenses: {expenses}")
 
@@ -90,6 +92,7 @@ def delete_expense(index):
 @app.route('/edit/<int:index>', methods=['POST'])
 def edit_expense(index):
     try:
+        logging.debug(f"Request to edit expense at index {index} received.")
         description = request.form['description']
         amount = float(request.form['amount'])
         logging.debug(f"Received new description: {description}, amount: {amount}")

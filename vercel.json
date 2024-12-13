@@ -8,6 +8,18 @@
   ],
   "routes": [
     {
+      "src": "/add",
+      "dest": "budget_tracker.py"
+    },
+    {
+      "src": "/edit/<int:index>",
+      "dest": "budget_tracker.py"
+    },
+    {
+      "src": "/delete/<int:index>",
+      "dest": "budget_tracker.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "budget_tracker.py"
     }
