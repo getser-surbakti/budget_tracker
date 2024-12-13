@@ -81,7 +81,7 @@ def delete_expense(index):
             expenses.pop(index)
             save_budget_data(JSON_FILE, initial_budget, expenses)
             logging.debug(f"Updated expenses after deleting: {expenses}")
-        
+
         return redirect(url_for('index'))
     except Exception as e:
         logging.error(f"Error deleting expense: {e}")
