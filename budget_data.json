@@ -1,9 +1,5 @@
 {
-    "budget": 1000,
-    "expenses": [
-        {
-            "description": "eret",
-            "amount": 344.0
-        }
-    ]
-}
+    "budget": 0,
+    "expenses": []
+  }
+  
